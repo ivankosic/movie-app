@@ -1,0 +1,8 @@
+<app-movie-table-component 
+  [movies]="movies"
+  [clickedMovie]="clickedMovie"
+  (viewEvent)="view($event)"
+  (viewSimilarEvent)="viewSimilar($event)"
+  (updateEvent)="update($event)"
+  (deleteEvent)="softDelete($event)"
+></app-movie-table-component>

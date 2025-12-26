@@ -1,0 +1,36 @@
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Release date</th>
+            <th>Running time</th>
+            <th>Image</th>
+            <th>Options</th>
+        </tr>
+    </thead>
+    <tbody>
+    @for(m of movies; track $index){
+        <tr>
+            <td>{{m.movie.title}}</td>
+            <td>{{m.movie.description}}</td>
+            <td>{{m.movie.releaseDate}}</td>
+            <td>{{m.movie.runningTime}}</td>
+            <td>
+                @if(m.movie.imageUrl !== null){
+                    <img src="{{m.movie.imageUrl}}">
+                }@else{
+                    No image available
+                }
+            </td>
+            <td>
+                <button (click)="onView(m)">View</button>
+                <button (click)="onViewSimilar(m)">View similar</button>
+                <button (click)="onUpdate(m)">Update</button>
+                <button (click)="onDelete(m)">Delete</button>
+            </td>
+        </tr>
+    }
+    </tbody>    
+</table>
+

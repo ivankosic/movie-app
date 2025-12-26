@@ -1,0 +1,23 @@
+<div>
+    <ul>
+        @for(i of data; track $index){
+        @if(i.imageUrl != undefined){
+        <li>
+            <img src="i.imageUrl" />
+            {{i.title}} ({{i.releaseDate}})
+            <div>
+                <button (click)="onUpdate(i)">Update</button>
+                <button (click)="onSoftDelete(i)">Delete</button>
+            </div>
+        </li>
+        }
+        @else {
+        <li>{{i.title}} ({{i.releaseDate}})</li>
+        <div>
+            <button (click)="onUpdate(i)">Update</button>
+            <button (click)="onSoftDelete(i)">Delete</button>
+        </div>
+        }
+        }
+    </ul>
+</div>
