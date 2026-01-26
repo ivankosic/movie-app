@@ -8,28 +8,88 @@ db = get_db()
 
 @actor_bp.route("/api/actors", methods = ["GET"])
 def get_all_actors():
-    query = "FOR a IN actor RETURN a"
+    query = """  
+        FOR a IN actor 
+        LET movies = (
+                FOR v IN 1 INBOUND a
+                `movie-actor`
+                RETURN v
+            )
+        RETURN {
+        actor : a,
+        movies : movies
+    }
+      """
     cursor = db.aql.execute(query)
     data = [doc for doc in cursor]
     return flask.jsonify(data if data else {"message": "No data to fetch"})
+
+@actor_bp.route("/api/actors/active", methods = ["GET"])
+def get_all_active():
+    query = """  
+        LET total = LENGTH(
+            FOR a IN actor
+                FILTER a.active == true
+                RETURN 1
+        )
+
+        LET data = (
+            FOR a IN actor
+                FILTER a.active == true
+                SORT a._key ASC
+                LIMIT @offset, @page_size
+
+                LET movies = (
+                    FOR e IN `movie-actor`
+                        FILTER e._to == a._id
+                        LET m = DOCUMENT(e._from)  // <-- FIXED
+                        FILTER m != null
+                        RETURN m
+                )
+
+                RETURN {
+                    actor: a,
+                    movies
+                }
+        )
+
+        RETURN {
+            total,
+            data
+        }
+      """
+    page = int(flask.request.args.get("page", 0))
+    page_size = min(int(flask.request.args.get("pageSize", 10)), 100)
+
+    offset = page * page_size
+
+    cursor = db.aql.execute(
+        query,
+        bind_vars={
+            "offset": offset,
+            "page_size": page_size
+        })
+
+    result = next(cursor)
+
+    return flask.jsonify({
+        "data": result["data"],
+        "total": result["total"],
+        "page": page,
+        "pageSize": page_size
+    })
 
 @actor_bp.route("/api/actors/<path:id>", methods = ["GET"])
 def get_actor_by_id(id):
     doc_id = f"actor/{id}"
     query = """
-                    LET d = DOCUMENT(@id)
-                    LET movies = (
-                        FOR e IN `movie-actor`
-                            FILTER e._to == d._id
-                            LET m = DOCUMENT(e._from)
-                            FILTER m != null
-                            RETURN { movie: m }
-                    )
-
-                    RETURN {
-                        actor: d,
-                        movies : movies
-                    }
+             LET d = DOCUMENT(@id)
+                LET movies = (
+                FOR v IN 1 INBOUND d
+                `movie-actor`
+                RETURN v)
+                
+                RETURN {actor : d , movies : movies}
                 """
     cursor = db.aql.execute(query, bind_vars={"id": doc_id})
     data = [doc for doc in cursor]
@@ -106,30 +166,89 @@ def soft_delete_actor(id):
         print(f"AQL error: {e}")
         return flask.jsonify({"error": "Database error during soft delete"}), 500
 
-@actor_bp.route("/api/actors/search", methods=["GET"])
+@actor_bp.route("/api/actors/search", methods=["POST"])
 def search_actors():
-    term = flask.request.args.get("term", "")
-
     query = """
-        FOR a IN actor
-            FILTER
-                CONTAINS(LOWER(a.fullName), LOWER(@term)) OR
-                CONTAINS(LOWER(a.description), LOWER(@term)) OR
-                CONTAINS(LOWER(TO_STRING(a.dateOfBirth)), LOWER(@term)) OR
-                CONTAINS(LOWER(TO_STRING(a.dateOfDeath)), LOWER(@term)) OR
-                CONTAINS(TO_STRING(a.age), @term) OR
-                CONTAINS(LOWER(a.imageUrl), LOWER(@term))
+            LET actorName = @actorName
+            LET directorName = @directorName
+            LET movieTitle = @movieTitle
+            LET releaseDateStart = @releaseDateStart
+            LET releaseDateEnd = @releaseDateEnd
+            LET runningTimeMin = @runningTimeMin
+            LET runningTimeMax = @runningTimeMax
+            LET genreName = @genreName
+
+            FOR a IN actors_view
+            SEARCH actorName == null OR ANALYZER(PHRASE(a.fullName, actorName), "text_en")
+
+            LET movies = (
+                FOR m IN 1..1 INBOUND a `movie-actor`
+                FILTER m.active == true
+                RETURN m
+            )
+
+            FILTER (releaseDateStart == null OR 
+                LENGTH(movies[* FILTER IN_RANGE(CURRENT.releaseDate, releaseDateStart, releaseDateEnd, true, true)]) > 0)
+            FILTER (runningTimeMin == null OR 
+                LENGTH(movies[* FILTER IN_RANGE(CURRENT.runningTime, runningTimeMin, runningTimeMax, true, true)]) > 0)
+
+            LET directors = (
+                FOR m in movies
+                FOR director IN 1..1 OUTBOUND m `movie-director`
+                FILTER director.active == true
+                RETURN director
+            )
+
+            LET genres = (
+                FOR m in movies
+                FOR genre IN 1..1 OUTBOUND m `movie-genre`
+                FILTER genre.active == true
+                RETURN genre
+            )
+
+            FILTER directorName == null OR 
+                    LENGTH(directors[* FILTER LIKE(CURRENT.fullName, CONCAT("%", directorName, "%"))]) > 0
+
+            FILTER genreName == null OR 
+                    LENGTH(genres[* FILTER CURRENT.name == genreName]) > 0
+
+            LIMIT @offset, @limit
+
             RETURN {
-                _key: a._key,
-                fullName: a.fullName,
-                description: a.description,
-                dateOfBirth: a.dateOfBirth,
-                dateOfDeath: a.dateOfDeath,
-                age: a.age,
-                imageUrl: a.imageUrl
+                actor: a,
+                movies: movies,
+                directors: directors,
+                genres: genres
             }
     """
 
-    cursor = db.aql.execute(query, bind_vars={"term": term})
-    data = list(cursor)
-    return flask.jsonify(data if data else {"message": "No data to fetch"})
+    payload = flask.request.get_json(force=True)
+
+    page = int(payload.get("page", 1))
+    page_size = int(payload.get("pageSize", 20))
+    offset = (page - 1) * page_size
+
+    bind_vars = {
+        "actorName": payload.get("actorName"),
+        "movieTitle": payload.get("movieTitle"),
+        "directorName": payload.get("directorName"),
+        "genreName": payload.get("genreName"),
+        "releaseDateStart": payload.get("releaseDateStart"),
+        "releaseDateEnd": payload.get("releaseDateEnd"),
+        "runningTimeMin": parse_int(payload.get("runningTimeMin")),
+        "runningTimeMax": parse_int(payload.get("runningTimeMax")),
+        "offset": offset,
+        "limit": page_size
+    }
+
+    try:
+        cursor = db.aql.execute(query, bind_vars=bind_vars)
+        return flask.jsonify(list(cursor))
+    except Exception as e:
+        return flask.jsonify({"error": str(e)}), 500
+    
+def parse_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None

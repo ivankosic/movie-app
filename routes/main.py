@@ -41,9 +41,14 @@ app.register_blueprint(umbp)
 app.register_blueprint(ubp)
 app.register_blueprint(login_bp)
 
-@app.route("/")
-def index():
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_angular(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return app.send_static_file(path)
     return app.send_static_file("index.html")
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
