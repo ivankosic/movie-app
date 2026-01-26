@@ -1,0 +1,21 @@
+<div>
+    <nav class="navbar">
+        <ul class="nav-list">
+            <li *ngFor="let item of items" class="nav-item">
+                <a *ngIf="!item.children" [routerLink]="item.route" routerLinkActive="active">
+                    {{ item.label }}
+                </a>
+                <div *ngIf="item.children" class="dropdown">
+                    <span class="dropdown-title">{{ item.label }}</span>
+                    <ul class="dropdown-menu">
+                        <li *ngFor="let child of item.children">
+                            <a [routerLink]="child.route">
+                                {{ child.label }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</div>

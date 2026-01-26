@@ -1,0 +1,64 @@
+<!-- advanced-search.component.html -->
+<div class="advanced-search-container">
+  <form [formGroup]="searchForm" class="search-form">
+    <!-- Basic Search -->
+    <div class="basic-search">
+      <input 
+        type="text" 
+        formControlName="searchText" 
+        placeholder="Search movies by title or description..."
+        class="search-input">
+      
+      <button 
+        type="button" 
+        class="toggle-btn"
+        (click)="toggleAdvanced()">
+        {{ showAdvanced ? '▲ Hide' : '▼ Show' }} Filters
+      </button>
+    </div>
+
+    <!-- Advanced Filters (Collapsible) -->
+    <div class="advanced-filters" *ngIf="showAdvanced">
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label>Actor</label>
+          <input type="text" formControlName="actorName" placeholder="e.g., Tom Hanks">
+        </div>
+
+        <div class="filter-group">
+          <label>Director</label>
+          <input type="text" formControlName="directorName" placeholder="e.g., Spielberg">
+        </div>
+
+        <div class="filter-group">
+          <label>Genre</label>
+          <input type="text" formControlName="genreName" placeholder="e.g., Action">
+        </div>
+
+        <div class="filter-group">
+          <label>Release From</label>
+          <input type="date" formControlName="releaseDateStart">
+        </div>
+
+        <div class="filter-group">
+          <label>Release To</label>
+          <input type="date" formControlName="releaseDateEnd">
+        </div>
+
+        <div class="filter-group">
+          <label>Min Runtime (min)</label>
+          <input type="number" formControlName="runningTimeMin" placeholder="90">
+        </div>
+
+        <div class="filter-group">
+          <label>Max Runtime (min)</label>
+          <input type="number" formControlName="runningTimeMax" placeholder="180">
+        </div>
+      </div>
+
+      <button type="button" class="reset-btn" (click)="resetFilters()">
+        Reset All Filters
+      </button>
+    </div>
+  </form>
+</div>

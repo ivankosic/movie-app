@@ -1,0 +1,21 @@
+<div class="actor-list">
+  <ng-container *ngFor="let d of directors || []; trackBy: trackById">
+    <!-- Only render if actor exists -->
+    <div *ngIf="d.director" class="movie-card" (click)="onView(d)">
+      
+      <!-- Actor Image -->
+      <div class="movie-image-wrapper" [ngClass]="{ 'no-image': !d.director?.imageUrl }">
+        <img *ngIf="d.director.imageUrl" [src]="d.director.imageUrl" [alt]="d.director.fullName" class="movie-image" />
+        <div *ngIf="!d.director.imageUrl" class="placeholder-image">
+          No Image
+        </div>
+      </div>
+
+      <!-- Actor Name -->
+      <div class="movie-info">
+        <h3>{{ d.director.fullName || 'Unknown Actor' }}</h3>
+      </div>
+
+    </div>
+  </ng-container>
+</div>

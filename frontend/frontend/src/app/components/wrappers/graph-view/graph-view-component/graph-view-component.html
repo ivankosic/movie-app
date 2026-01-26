@@ -1,4 +1,20 @@
-<div>
-    <app-graph-component>
-    </app-graph-component>
+<div *ngIf="loading">
+  Loading movie...
+</div>
+
+<div *ngIf="!loading && movie">
+  <h2>{{ movie?.movie?.title || 'Movie' }} - Recommendations</h2>
+
+  <div *ngIf="recommendations.length > 0">
+    <app-graph [movie]="movie" [recommendations]="recommendations">
+    </app-graph>
+  </div>
+
+  <div *ngIf="recommendations.length === 0">
+    No recommendations available for this movie.
+  </div>
+</div>
+
+<div *ngIf="!loading && !movie">
+  Movie not found.
 </div>

@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Movie, MovieFull } from '../../model/movie';
+import { Movie, MovieFull, MoviePageResponse, MovieRecommendation } from '../../model/movie';
 import { environment } from '../../environment';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,14 +10,21 @@ import { environment } from '../../environment';
 export class MovieService {
   private url = `${environment.baseUrl}/movies`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll() {
     return this.http.get<MovieFull[]>(this.url);
   }
 
-  getAllActive() {
-    return this.http.get<MovieFull[]>(`${this.url}/active`);
+  getAllActive(page = 0, pageSize = 10) {
+    return this.http.get<MoviePageResponse>(
+    `${environment.baseUrl}/movies/active`,
+    {
+      params: {
+        page,
+        pageSize
+      }
+    });
   }
 
   getById(id: string | number) {
@@ -28,7 +36,7 @@ export class MovieService {
   }
 
   update(t: Movie, id: string | number) {
-    return this.http.put<Movie>(`${this.url}`, t);
+    return this.http.put<MovieFull>(`${this.url}`, t);
   }
 
   delete(id: string | number) {
@@ -39,11 +47,14 @@ export class MovieService {
     return this.http.delete<void>(`${this.url}/softDelete/${id}`);
   }
 
-  search(term: string) {
-    return this.http.get<Movie[]>(`${this.url}/search?term=${term}`);
+  search(params : any) {
+    return this.http.post<MovieFull[]>(
+      `${this.url}/search`,params);
   }
 
-  recommend(id : string | number){
-    return this.http.get<MovieFull[]>(`${this.url}/${id}/recommend`);
+  recommend(id: string | number): Observable<MovieRecommendation[]> {
+    return this.http.get<MovieRecommendation[][]>(`${this.url}/${id}/recommend`).pipe(
+      map((res: MovieRecommendation[][]) => res.flat())
+    );
   }
 }

@@ -1,0 +1,126 @@
+.movie-list-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Separate wrapper for the search bar */
+.search-wrapper {
+  margin-bottom: 25px; /* pushes the movie grid down */
+  display: flex;
+  justify-content: center;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+.movie-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.movie-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.movie-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.movie-image-wrapper {
+  width: 100%;
+  height: 0;
+  padding-bottom: 150%;
+  position: relative;
+  overflow: hidden;
+  background-color: #eee;
+}
+
+.movie-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  top: 0;
+  left: 0;
+}
+
+.placeholder-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc;
+  color: #555;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.movie-info {
+  padding: 15px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.movie-info h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+  line-height: 1.2;
+}
+
+.release-date {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.movie-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  flex: 1 1 40%;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.view-similar-btn { background-color: #3474db; color: #fff; }
+.update-btn { background-color: #f37712; color: #fff; }
+.delete-btn { background-color: #e74c3c; color: #fff; }
+
+@media (max-width: 600px) {
+  .movie-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

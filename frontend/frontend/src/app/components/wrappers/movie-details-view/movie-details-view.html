@@ -1,0 +1,6 @@
+<app-movie-details
+  *ngIf="movie"
+  [movie]="movie"
+  (actorClickEvent)="redirectToActor($event)"
+  (directorClickEvent)="redirectToDirector($event)">
+</app-movie-details>

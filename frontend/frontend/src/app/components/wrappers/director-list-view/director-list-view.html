@@ -1,0 +1,18 @@
+<app-navbar
+  [items]="navLinks"
+  (redirectEvent)="redirect($event)">
+</app-navbar>
+<app-director-list
+  [directors]="directors"
+  (viewEvent)="view($event)"
+  (searchEvent)="search($event)"
+  (updateEvent)="update($event)"
+  (deleteEvent)="softDelete($event)"
+></app-director-list>
+<mat-paginator
+  [length]="totalResults"
+  [pageSize]="pageSize"
+  [pageIndex]="pageIndex"
+  [pageSizeOptions]="[5, 10, 25, 50]"
+  (page)="onPageChange($event)">
+</mat-paginator>

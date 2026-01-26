@@ -1,23 +1,42 @@
-<div>
-    <ul>
-        @for(i of data; track $index){
-        @if(i.imageUrl != undefined){
-        <li>
-            <img src="i.imageUrl" />
-            {{i.title}} ({{i.releaseDate}})
-            <div>
-                <button (click)="onUpdate(i)">Update</button>
-                <button (click)="onSoftDelete(i)">Delete</button>
-            </div>
-        </li>
-        }
-        @else {
-        <li>{{i.title}} ({{i.releaseDate}})</li>
-        <div>
-            <button (click)="onUpdate(i)">Update</button>
-            <button (click)="onSoftDelete(i)">Delete</button>
+<!-- movie-list-component.html -->
+<div class="movie-list-container">
+  <!-- Search wrapper -->
+  <div class="search-wrapper">
+    <app-search (searchEvent)="onSearch($event)"></app-search>
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="loading-container">
+    <p>Searching movies...</p>
+  </div>
+
+  <!-- Movie list grid -->
+  <div class="movie-list" *ngIf="!loading">
+    <div *ngFor="let m of movies; trackBy: trackById" class="movie-card" (click)="onView(m)">
+      <div class="movie-image-wrapper" [ngClass]="{'no-image': !m.movie?.imageUrl}">
+        <img *ngIf="m.movie?.imageUrl" [src]="m.movie?.imageUrl" alt="{{ m.movie?.title }}" class="movie-image">
+        <div *ngIf="!m.movie?.imageUrl" class="placeholder-image">No Image</div>
+      </div>
+      <div class="movie-info">
+        <h3>{{ m.movie?.title }}</h3>
+        <p class="release-date">{{ m.movie?.releaseDate }}</p>
+        <div class="movie-actions">
+          <button class="btn view-similar-btn" (click)="$event.stopPropagation(); onViewSimilar(m)">
+            View Similar
+          </button>
+          <button class="btn update-btn" (click)="$event.stopPropagation(); onUpdate(m)">
+            Update
+          </button>
+          <button class="btn delete-btn" (click)="$event.stopPropagation(); onDelete(m)">
+            Delete
+          </button>
         </div>
-        }
-        }
-    </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- No results message -->
+  <div *ngIf="!loading && movies.length === 0" class="no-results">
+    <p>No movies found. Try adjusting your search criteria.</p>
+  </div>
 </div>

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Actor } from '../../model/actor';
+import { Actor, ActorFull, ActorPageResponse } from '../../model/actor';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -8,38 +9,44 @@ import { Actor } from '../../model/actor';
 export class ActorService {
   private url = "http://localhost:5000/api/actors";
 
-  constructor(private http : HttpClient){}
+  constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Actor[]>(this.url);
+  getAll(): Observable<ActorFull[]> {
+    return this.http.get<ActorFull[]>(this.url);
   }
 
-  getAllActive(){
-    return this.http.get<Actor[]>(`${this.url}/active`);
+  getAllActive(page = 0, pageSize = 10) {
+      return this.http.get<ActorPageResponse>(
+      `${this.url}/active`,
+      {
+        params: {
+          page,
+          pageSize
+        }
+      });
+    }
+
+  getById(id: string | number): Observable<ActorFull> {
+    return this.http.get<ActorFull>(`${this.url}/${id}`);
   }
 
-  getById(id : string | number){
-    return this.http.get<Actor>(`${this.url}/${id}`);
+  create(actor: Actor): Observable<ActorFull> {
+    return this.http.post<ActorFull>(this.url, actor);
   }
 
-  create(t : Actor){
-    return this.http.post<Actor>(`${this.url}`, t);
+  update(actor: Actor, id: string | number): Observable<ActorFull> {
+    return this.http.put<ActorFull>(`${this.url}/${id}`, actor);
   }
 
-  update(t : Actor, id : string | number){
-    return this.http.put<Actor>(`${this.url}`, t);
-  }
-
-  delete(id : string | number){
+  delete(id: string | number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
-  softDelete(id : string | number){
+  softDelete(id: string | number): Observable<void> {
     return this.http.delete<void>(`${this.url}/softDelete/${id}`);
   }
 
-  search(term : string){
-    return this.http.get<Actor[]>(`${this.url}/search?term=${term}`);
+  search(term: string): Observable<ActorFull[]> {
+    return this.http.get<ActorFull[]>(`${this.url}/search?term=${term}`);
   }
-
 }

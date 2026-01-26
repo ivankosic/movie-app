@@ -1,0 +1,33 @@
+<div class="actor-card" *ngIf="actor">
+  <div class="actor-image" *ngIf="actor.actor.imageUrl">
+    <img [src]="actor.actor.imageUrl" [alt]="actor.actor.fullName" />
+  </div>
+
+  <div class="actor-info">
+    <h2 class="actor-name">{{ actor.actor.fullName }}</h2>
+
+    <div class="info-row">
+      <span class="info-label">Date of Birth:</span>
+      <span class="info-value">{{ actor.actor.dateOfBirth }}</span>
+    </div>
+
+    <div class="info-row" *ngIf="actor.actor.dateOfDeath">
+      <span class="info-label">Date of Death:</span>
+      <span class="info-value">{{ actor.actor.dateOfDeath }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Age:</span>
+      <span class="info-value">{{ actor.actor.age }}</span>
+    </div>
+    <div class="movies">
+      <h2><strong>Acted in</strong></h2>
+      <ul>
+        <li *ngFor="let m of actor.movies" class="movie-item" (click)="onMovieClick(m)">
+          <img class="movie-thumb" [src]="m.imageUrl" [alt]="m.title" />
+          <span class="movie-title">{{ m.title }} ({{ m.releaseDate | date:'yyyy' }})</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

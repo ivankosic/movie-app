@@ -1,0 +1,25 @@
+<app-navbar 
+[items]="navLinks" 
+(redirectEvent)="redirect($event)">
+</app-navbar>
+
+<app-movie-list
+  [movies]="movies"
+  [loading]="loading"
+  (searchEvent)="search($event)"
+  (viewEvent)="view($event)"
+  (viewSimilarEvent)="viewSimilar($event)"
+  (updateEvent)="update($event)"
+  (deleteEvent)="softDelete($event)">
+</app-movie-list>
+<mat-paginator
+  [length]="totalResults"
+  [pageSize]="pageSize"
+  [pageIndex]="pageIndex"
+  [pageSizeOptions]="[5, 10, 25, 50]"
+  (page)="onPageChange($event)">
+</mat-paginator>
+
+<div *ngIf="!loading && movies.length === 0" class="no-results">
+  <p>No movies found. Try adjusting your search criteria.</p>
+</div>

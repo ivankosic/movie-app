@@ -1,0 +1,36 @@
+<div class="movie-detail-card" *ngIf="movie">
+  <h2 class="movie-title">{{ movie.movie.title }} ({{ movie.movie.releaseDate | date : 'yyyy' }})</h2>
+
+  <div class="image-container" *ngIf="movie.movie.imageUrl">
+    <img [src]="movie.movie.imageUrl" alt="{{ movie.movie.title }}" class="movie-image" />
+  </div>
+
+  <div class="movie-info">
+    <p class="movie-description">
+      <strong>Description:</strong> {{ movie.movie.description }}
+    </p>
+    <p class="movie-running-time">
+      <strong>Running time: </strong> {{ movie.movie.runningTime}} minutes
+    </p>
+    <div class="movie-genres">
+      <strong>Genres:</strong>
+      <span *ngFor="let g of movie.genres; let last = last">
+        {{ g.genre.name }}{{ last ? '' : ', ' }}
+      </span>
+    </div>
+
+    <div class="movie-directors">
+      <strong>Directed by:</strong>
+      <span *ngFor="let d of movie.directors; let last = last">
+        <a (click)="directorClickEvent.emit(d.director)">{{ d.director.fullName }}</a>{{ last ? '' : ', ' }}
+      </span>
+    </div>
+
+    <div class="movie-actors">
+      <strong>Stars:</strong>
+      <span *ngFor="let a of movie.actors; let last = last">
+        <a (click)="actorClickEvent.emit(a.actor)">{{ a.actor.fullName }}</a>{{ last ? '' : ', ' }}
+      </span>
+    </div>
+  </div>
+</div>
